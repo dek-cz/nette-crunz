@@ -1,0 +1,23 @@
+extensions:
+    crunz: DekApps\Crunz\DI\CrunzExtension
+
+crunz:
+    tasks:
+        - 
+            command: 'ls'
+            parameters: [ '-la' , '-rt' ]
+            expression: ''
+            runningWhen: 'everyMinute'
+            on: ''
+            at: ''
+            in: ''
+            from: ''
+            to: ''
+            preventOverlapping: true
+            description: ''
+        - 
+            command: 'du'
+            parameters: [ '-hS' : '' ]
+            expression: '* * * * *'
+            preventOverlapping: true
+            description: ''
