@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace DekApps\Crunz;
 
+use Closure;
 use Crunz\Event;
 use Crunz\Schedule;
 
@@ -13,7 +14,7 @@ final class Task
 
     private Event $task;
 
-    private string $command = '';
+    private string|array|Closure $command = '';
 
     private ?array $parameters = [];
 
@@ -31,16 +32,23 @@ final class Task
 
     private ?string $description = null;
 
-    public function __construct(Schedule $service, string $command, bool $preventOverlapping, ?array $parameters = [], ?string $expression = null)
+    private ?string $from = null;
+
+    private ?string $to = null;
+
+    public function __construct(Schedule $service, string|array|Closure $command, bool $preventOverlapping, ?array $parameters = [], ?string $expression = null)
     {
         $this->service = $service;
+        if (is_array($command)) {
+            $command = Closure::fromCallable($command);
+        }
         $this->command = $command;
         $this->parameters = $parameters;
         $this->expression = $expression;
         $this->preventOverlapping = $preventOverlapping;
 
-        $keys = array_keys($parameters);
-        if ($keys !== range(0, count($parameters) - 1)) {
+        $keys = array_keys($parameters ?? []);
+        if (!empty($keys) && $keys !== range(0, count($parameters) - 1)) {
             $mapparams = join(' ', array_map(function ($key) use ($parameters) {
                     if ($parameters[$key] !== null && $parameters[$key] !== '') {
                         return $key . ' ' . $parameters[$key];
@@ -49,13 +57,13 @@ final class Task
                 }, array_keys($parameters)));
             $task = $service->run(sprintf('%s %s', $command, $mapparams));
         } else {
-            $task = $service->run($command, $parameters);
+            $task = $service->run($command, $parameters ?? []);
         }
 
         $this->task = $task;
     }
 
-    public function run()
+    public function run(): void
     {
         $service = $this->service;
         $command = $this->command;
@@ -67,6 +75,8 @@ final class Task
         $at = $this->at;
         $in = $this->in;
         $task = $this->task;
+        $from = $this->from;
+        $to = $this->to;
 
 //        print system($task->getCommand());
 
@@ -84,68 +94,86 @@ final class Task
         if ($at !== null && $at !== '') {
             $task->at($at);
         }
+        if ($from !== null && $from !== '') {
+            $task->from($from);
+        }
+        if ($to !== null && $to !== '') {
+            $task->from($to);
+        }
         if ($preventOverlapping) {
             $task->preventOverlapping();
         }
     }
 
-    public function setService(Schedule $service)
+    public function setService(Schedule $service): self
     {
         $this->service = $service;
         return $this;
     }
 
-    public function setCommand(string $command)
+    public function setCommand(string|array|Closure $command): self
     {
         $this->command = $command;
         return $this;
     }
 
-    public function setParameters(?array $parameters)
+    public function setParameters(?array $parameters): self
     {
         $this->parameters = $parameters;
         return $this;
     }
 
-    public function setRunningWhen(?string $runningWhen)
+    public function setRunningWhen(?string $runningWhen): self
     {
         $this->runningWhen = $runningWhen;
         return $this;
     }
 
-    public function setOn(?string $on)
+    public function setOn(?string $on): self
     {
         $this->on = $on;
         return $this;
     }
 
-    public function setAt(?string $at)
+    public function setAt(?string $at): self
     {
         $this->at = $at;
         return $this;
     }
 
-    public function setIn(?string $in)
+    public function setIn(?string $in): self
     {
         $this->in = $in;
         return $this;
     }
 
-    public function setPreventOverlapping(bool $preventOverlapping)
+    public function setPreventOverlapping(bool $preventOverlapping): self
     {
         $this->preventOverlapping = $preventOverlapping;
         return $this;
     }
 
-    public function setExpression(?string $expression)
+    public function setExpression(?string $expression): self
     {
         $this->expression = $expression;
         return $this;
     }
 
-    public function setDescription(?string $description)
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
+        return $this;
+    }
+
+    public function setFrom(?string $from): self
+    {
+        $this->from = $from;
+        return $this;
+    }
+
+    public function setTo(?string $to): self
+    {
+        $this->to = $to;
         return $this;
     }
 
@@ -154,7 +182,7 @@ final class Task
         return $this->service;
     }
 
-    public function getCommand(): string
+    public function getCommand(): string|array|Closure
     {
         return $this->command;
     }
@@ -203,18 +231,27 @@ final class Task
     {
         return $this->task;
     }
-    
-    
+
     public function skip(\Closure $callback): self
     {
         $this->getTask()->skip($callback);
         return $this;
     }
-    
+
     public function when(\Closure $callback): self
     {
         $this->getTask()->when($callback);
         return $this;
+    }
+
+    public function getFrom(): ?string
+    {
+        return $this->from;
+    }
+
+    public function getTo(): ?string
+    {
+        return $this->to;
     }
 
 }

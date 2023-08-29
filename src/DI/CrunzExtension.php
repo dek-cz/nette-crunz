@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace DekApps\Crunz\DI;
 
+use Closure;
 use Cron\CronExpression;
 use Crunz\Schedule;
 use DekApps\Crunz\Crunz;
@@ -27,7 +28,7 @@ final class CrunzExtension extends CompilerExtension
                                 static fn(string $value): bool => $value === '' || CronExpression::isValidExpression($value),
                                 'Valid cron expression',
                             ),
-                        'command' => Expect::string(),
+                        'command' => Expect::anyOf(Expect::string(), Expect::array()->min(2)->max(2), Expect::type(Closure::class)),
                         'parameters' => Expect::array()->default(null),
                         'preventOverlapping' => Expect::bool()->default(true),
                         'runningWhen' => Expect::anyOf(
@@ -112,7 +113,14 @@ final class CrunzExtension extends CompilerExtension
                 'preventOverlapping' => $t->preventOverlapping ?? true,
                 'parameters' => $t->parameters ?? null,
                 'expression' => $t->expression ?? null,
-            ]);
+            ])->addSetup('setRunningWhen', [$t->runningWhen ?? null])
+            ->addSetup('setOn', [$t->on ?? null])
+            ->addSetup('setAt', [$t->at ?? null])
+            ->addSetup('setIn', [$t->in ?? null]) 
+            ->addSetup('setFrom', [$t->from ?? null])
+            ->addSetup('setTo', [$t->to ?? null])  
+            ->addSetup('setDescription', [$t->description ?? null])  
+                ;
 
             $evs = $t->events;
             foreach ($evs->skip as $ev) {

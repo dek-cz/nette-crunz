@@ -6,7 +6,6 @@ crunz:
         - 
             command: 'ls'
             parameters: [ '-la' , '-rt' ]
-            expression: ''
             runningWhen: 'everyMinute'
             on: ''
             at: ''
@@ -21,3 +20,11 @@ crunz:
             expression: '* * * * *'
             preventOverlapping: true
             description: ''
+        - 
+            command: [@testSer, run]
+            expression: '* * * * *'
+            preventOverlapping: false
+            description: 'Tests\DekApps\TestService'
+
+services:
+    testSer: Tests\DekApps\TestService

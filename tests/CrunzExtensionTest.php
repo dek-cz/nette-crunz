@@ -31,9 +31,12 @@ class CrunzExtensionTest extends TestCase
         self::assertInstanceOf(Crunz::class, $crunz);
         self::assertSame($crunz, $container->getByType(Crunz::class));
         
-        self::assertSame(count($crunz->getTasks()), 2);
-        
+        self::assertSame(count($crunz->getTasks()), 3);
         $crunz->run();
+        self::assertSame($crunz->getTasks()[2]->getTask()->isClosure(), true);
+        self::assertSame($crunz->getTasks()[0]->getTask()->getExpression(), '* * * * *');
+        self::assertSame($crunz->getTasks()[1]->getTask()->getExpression(), '* * * * *');
+        
         /**
          * @todo: ;-)
          */
