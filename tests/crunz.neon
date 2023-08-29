@@ -24,7 +24,7 @@ crunz:
             command: [@testSer, run]
             expression: '* * * * *'
             preventOverlapping: false
-            description: 'Tests\DekApps\TestService'
+            description: 'Tests\DekApps\TestService::run'
 
 services:
     testSer: Tests\DekApps\TestService

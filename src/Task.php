@@ -77,6 +77,7 @@ final class Task
         $task = $this->task;
         $from = $this->from;
         $to = $this->to;
+        $description = $this->description;
 
 //        print system($task->getCommand());
 
@@ -102,6 +103,9 @@ final class Task
         }
         if ($preventOverlapping) {
             $task->preventOverlapping();
+        }
+        if ($description !== null && $description !== '') {
+            $task->description($description);
         }
     }
 
