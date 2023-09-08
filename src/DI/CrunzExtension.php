@@ -11,6 +11,7 @@ use DekApps\Crunz\Task;
 use Nette\DI\CompilerExtension;
 use Nette\DI\ContainerBuilder;
 use Nette\DI\Definitions\ServiceDefinition;
+use Nette\DI\Definitions\Statement;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
 use stdClass;
@@ -28,7 +29,7 @@ final class CrunzExtension extends CompilerExtension
                                 static fn(string $value): bool => $value === '' || CronExpression::isValidExpression($value),
                                 'Valid cron expression',
                             ),
-                        'command' => Expect::anyOf(Expect::string(), Expect::array()->min(2)->max(2), Expect::type(Closure::class)),
+                        'command' => Expect::anyOf(Expect::string(), Expect::array()->min(2)->max(3), Expect::type(Closure::class), Expect::type(Statement::class),),
                         'parameters' => Expect::array()->default(null),
                         'preventOverlapping' => Expect::bool()->default(true),
                         'runningWhen' => Expect::anyOf(
@@ -108,19 +109,24 @@ final class CrunzExtension extends CompilerExtension
             $taskDefName = 'crunz.task.' . $id;
             $task = $builder->addDefinition($taskDefName)
                 ->setFactory(Task::class, [
-                'service' => $scheduler,
-                'command' => $t->command,
-                'preventOverlapping' => $t->preventOverlapping ?? true,
-                'parameters' => $t->parameters ?? null,
-                'expression' => $t->expression ?? null,
-            ])->addSetup('setRunningWhen', [$t->runningWhen ?? null])
-            ->addSetup('setOn', [$t->on ?? null])
-            ->addSetup('setAt', [$t->at ?? null])
-            ->addSetup('setIn', [$t->in ?? null]) 
-            ->addSetup('setFrom', [$t->from ?? null])
-            ->addSetup('setTo', [$t->to ?? null])  
-            ->addSetup('setDescription', [$t->description ?? null])  
-                ;
+                    'service' => $scheduler,
+                    'command' => $t->command instanceof Statement || (is_array($t->command) && count($t->command) === 2) ? new Statement([
+                    Closure::class,
+                    'fromCallable',
+                    ], [
+                    $t->command,
+                    ]) : $t->command,
+                    'preventOverlapping'  => $t->preventOverlapping ?? true,
+                    'parameters'  => $t->parameters ?? null,
+                    'expression'  => $t->expression ?? null,
+                ])->addSetup('setRunningWhen', [$t->runningWhen ?? null])
+                ->addSetup('setOn', [$t->on ?? null])
+                ->addSetup('setAt', [$t->at ?? null])
+                ->addSetup('setIn', [$t->in ?? null])
+                ->addSetup('setFrom', [$t->from ?? null])
+                ->addSetup('setTo', [$t->to ?? null])
+                ->addSetup('setDescription', [$t->description ?? null])
+            ;
 
             $evs = $t->events;
             foreach ($evs->skip as $ev) {

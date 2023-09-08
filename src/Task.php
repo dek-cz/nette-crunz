@@ -40,7 +40,7 @@ final class Task
     {
         $this->service = $service;
         if (is_array($command)) {
-            $command = Closure::fromCallable($command);
+        $command = Closure::fromCallable([$command[0], $command[2]])(...$command[3]);
         }
         $this->command = $command;
         $this->parameters = $parameters;

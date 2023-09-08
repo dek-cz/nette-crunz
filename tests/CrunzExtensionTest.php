@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Closure;
 use Crunz\Schedule;
 use DekApps\Crunz\Crunz;
 use PHPUnit\Framework\TestCase;
@@ -31,11 +32,12 @@ class CrunzExtensionTest extends TestCase
         self::assertInstanceOf(Crunz::class, $crunz);
         self::assertSame($crunz, $container->getByType(Crunz::class));
         
-        self::assertSame(count($crunz->getTasks()), 3);
+        self::assertSame(count($crunz->getTasks()), 4);
         $crunz->run();
         self::assertSame($crunz->getTasks()[2]->getTask()->isClosure(), true);
         self::assertSame($crunz->getTasks()[0]->getTask()->getExpression(), '* * * * *');
         self::assertSame($crunz->getTasks()[1]->getTask()->getExpression(), '* * * * *');
+        self::assertSame($crunz->getTasks()[3]->getTask()->getCommand()->__invoke(), 1);
         
         /**
          * @todo: ;-)

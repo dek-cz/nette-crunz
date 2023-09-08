@@ -21,10 +21,15 @@ crunz:
             preventOverlapping: true
             description: ''
         - 
-            command: [@testSer, run]
+            command: [@testSer, 'run']
             expression: '* * * * *'
             preventOverlapping: false
             description: 'Tests\DekApps\TestService::run'
+        - 
+            command: [Tests\DekApps\TestService2(1), 'getPlus']
+            expression: '* * * * *'
+            preventOverlapping: false
+            description: 'Tests\DekApps\TestService2::getPlus'
 
 services:
     testSer: Tests\DekApps\TestService
