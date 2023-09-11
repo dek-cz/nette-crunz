@@ -29,7 +29,7 @@ final class CrunzExtension extends CompilerExtension
                                 static fn(string $value): bool => $value === '' || CronExpression::isValidExpression($value),
                                 'Valid cron expression',
                             ),
-                        'command' => Expect::anyOf(Expect::string(), Expect::array()->min(2)->max(3), Expect::type(Closure::class), Expect::type(Statement::class),),
+                        'command' => Expect::anyOf(Expect::string(), Expect::array()->min(2)->max(2), Expect::type(Closure::class), Expect::type(Statement::class),),
                         'parameters' => Expect::array()->default(null),
                         'preventOverlapping' => Expect::bool()->default(true),
                         'runningWhen' => Expect::anyOf(
@@ -110,7 +110,7 @@ final class CrunzExtension extends CompilerExtension
             $task = $builder->addDefinition($taskDefName)
                 ->setFactory(Task::class, [
                     'service' => $scheduler,
-                    'command' => $t->command instanceof Statement || (is_array($t->command) && count($t->command) === 2) ? new Statement([
+                    'command' => $t->command instanceof Statement || is_array($t->command) ? new Statement([
                     Closure::class,
                     'fromCallable',
                     ], [
