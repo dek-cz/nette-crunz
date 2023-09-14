@@ -30,6 +30,15 @@ crunz:
             expression: '* * * * *'
             preventOverlapping: false
             description: 'Tests\DekApps\TestService2::getPlus'
+        - 
+            command: [@testSer, 'run']
+            expression: '* * * * *'
+            preventOverlapping: false
+            description: 'Tests\DekApps\TestService::run'
+            events:
+                skip: 
+                    - [@testSer, 'skip']
+
 
 services:
     testSer: Tests\DekApps\TestService
