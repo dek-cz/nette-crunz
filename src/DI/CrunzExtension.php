@@ -44,6 +44,8 @@ final class CrunzExtension extends CompilerExtension
                         'to' => Expect::string()->default(null),
                         'beetween' => Expect::array()->min(2)->max(2)->default(null),
                         'description' => Expect::string()->default(null),
+                        'appendOutputTo' => Expect::string()->default(null),
+                        'sendOutputTo' => Expect::string()->default(null),
                         'events' => Expect::structure([
                             'skip' => Expect::listOf(
                                 Expect::anyOf(
@@ -54,6 +56,22 @@ final class CrunzExtension extends CompilerExtension
                                 ),
                             ),
                             'when' => Expect::listOf(
+                                Expect::anyOf(
+                                    Expect::string(),
+                                    /* @infection-ignore-all */
+                                    Expect::array()->min(2)->max(2),
+                                    Expect::type(Statement::class),
+                                ),
+                            ),
+                            'before' => Expect::listOf(
+                                Expect::anyOf(
+                                    Expect::string(),
+                                    /* @infection-ignore-all */
+                                    Expect::array()->min(2)->max(2),
+                                    Expect::type(Statement::class),
+                                ),
+                            ),
+                            'after' => Expect::listOf(
                                 Expect::anyOf(
                                     Expect::string(),
                                     /* @infection-ignore-all */
@@ -126,6 +144,8 @@ final class CrunzExtension extends CompilerExtension
                 ->addSetup('setFrom', [$t->from ?? null])
                 ->addSetup('setTo', [$t->to ?? null])
                 ->addSetup('setDescription', [$t->description ?? null])
+                ->addSetup('appendOutputTo', [$t->appendOutputTo ?? '/dev/null'])
+                ->addSetup('sendOutputTo', [$t->sendOutputTo ?? '/dev/null'])
             ;
 
             $evs = $t->events;
@@ -145,6 +165,32 @@ final class CrunzExtension extends CompilerExtension
             foreach ($evs->when as $ev) {
                 $task->addSetup(
                     'when',
+                    [
+                        new Statement([
+                            Closure::class,
+                            'fromCallable',
+                            ], [
+                            $ev,
+                            ]),
+                    ],
+                );
+            }
+            foreach ($evs->before as $ev) {
+                $task->addSetup(
+                    'before',
+                    [
+                        new Statement([
+                            Closure::class,
+                            'fromCallable',
+                            ], [
+                            $ev,
+                            ]),
+                    ],
+                );
+            }
+            foreach ($evs->after as $ev) {
+                $task->addSetup(
+                    'after',
                     [
                         new Statement([
                             Closure::class,

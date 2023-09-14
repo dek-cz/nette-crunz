@@ -258,4 +258,26 @@ final class Task
         return $this->to;
     }
 
+    public function before(\Closure $callback): self
+    {
+        $this->getTask()->before($callback);
+        return $this;
+    }
+
+    public function after(\Closure $callback): self
+    {
+        $this->getTask()->after($callback);
+        return $this;
+    }
+    
+    public function appendOutputTo($location)
+    {
+        return $this->getTask()->appendOutputTo($location);
+    }
+    
+    public function sendOutputTo($location)
+    {
+        return $this->getTask()->sendOutputTo($location);
+    }
+
 }
