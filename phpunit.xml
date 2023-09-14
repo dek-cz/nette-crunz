@@ -1,5 +1,5 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="./../vendor/phpunit/phpunit/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
          bootstrap="../vendor/autoload.php"
          beStrictAboutOutputDuringTests="true"
          cacheResultFile="../var/tools/PHPUnit/results.dat"
@@ -10,7 +10,7 @@
          verbose="true"
 >
     <testsuite name="all">
-        <directory>../tests</directory>
+        <directory>./tests</directory>
     </testsuite>
 
 </phpunit>

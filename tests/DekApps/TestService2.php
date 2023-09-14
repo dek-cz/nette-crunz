@@ -6,9 +6,12 @@ final class TestService2
 {
     private int $plus = 0;
     
-    public function __construct(int $plus)
+    private TestService $a;
+    
+    public function __construct(TestService $a, int $plus)
     {
         $this->plus = $plus;
+        $this->a = $a;
     }
 
         public int $runs = 0;
@@ -27,6 +30,7 @@ final class TestService2
     
     public function getPlus(): int
     {
+        
         return $this->plus;
     }
 
